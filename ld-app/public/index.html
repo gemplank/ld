@@ -1,0 +1,83 @@
+<html>
+
+<head>
+	<title>Gem LD Test</title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<script src="https://unpkg.com/launchdarkly-js-client-sdk@2"></script>
+</head>
+
+<body>
+	<script>
+		// Function to run the LD flag process.
+		function runLDflag( email ) {
+			if ( ! email ) {
+				return;
+			}
+
+			// Set up the user properties.
+			var user = {
+				name: 'Jeff Test',
+				key: 'jeff-user-key',
+				email: email,
+			};
+
+			// Create a new LDClient instance.
+			var ldclient = LDClient.initialize( '62a8942758fc91158b9ab0cd', user );
+
+			// Render based on flag value.
+			function render() {
+				var flagValue = ldclient.variation( 'ld-test', false );
+				
+				const resultsContainer = document.querySelector( '.ld-result span' );
+				
+				console.log( "SDK successfully connected! The value of ld-test is " + flagValue + " for " + user.key );
+				
+				resultsContainer.innerHTML = flagValue;
+
+				if ( ! flagValue ) {
+					resultsContainer.innerHTML += ' ❌';
+				} else {
+					resultsContainer.innerHTML += ' ✅';
+				}
+			}
+
+			ldclient.on( 'ready', render );
+			ldclient.on( 'change', render );
+		}
+
+		// Function to handle form submission.
+		function submitForm( event ) {
+			event.preventDefault();
+
+			const email = document.getElementById( 'ld-email' ) ? document.getElementById( 'ld-email' ).value : '';
+
+			if ( email !== '' ) {
+				runLDflag( email );
+			}
+		}
+	</script>
+
+	<h1>LD SDK Test</h1>
+
+	<h3>Is your email address on the <i>gpwebdevelopment.co.uk</i> domain?</h3>
+
+	<p>
+		<i>For the purpose of testing, try first with info@info.com and then with info@gpwebdevelopment.co.uk</i>
+	</p>
+
+	<form action="" onsubmit="submitForm( event )" id="ld-form" style="margin-top: 50px;">
+		<label for="ld-email">
+			<p>Please enter your email address below to test:</p>
+			<input type="email" name="ld-email" id="ld-email" placeholder="Enter your email" style="min-width: 300px;">
+		</label>
+
+		<input type="submit">
+	</form>
+
+	<div class="ld-result" style="margin-top: 100px;">
+		<h3 style="text-decoration: underline;">Result: </h3>
+		<span style="font-weight: bold; text-transform: uppercase;"></span>
+	</div>
+</body>
+
+</html>
